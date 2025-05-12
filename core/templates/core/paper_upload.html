@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Makale Yükleme - Akademik Makale Sistemi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="card-title">Makale Yükleme</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="paperUploadForm" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">E-posta Adresi</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                                <div class="form-text">Değerlendirme sonucunuz bu e-posta adresine gönderilecektir.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="pdfFile" class="form-label">PDF Dosyası</label>
+                                <input type="file" class="form-control" id="pdfFile" name="file" accept=".pdf" required>
+                                <div class="form-text">Lütfen makaleyi PDF formatında yükleyin.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                    <label class="form-check-label" for="termsCheck">
+                                        Değerlendirme şartlarını kabul ediyorum
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Makale Yükle</button>
+                            </div>
+                        </form>
+
+                        <div class="alert alert-success mt-3 d-none" id="successAlert">
+                            <h4 class="alert-heading">Makale Başarıyla Yüklendi!</h4>
+                            <p>Makaleniz sisteme yüklendi. Lütfen makale takip numaranızı not ediniz.</p>
+                            <hr>
+                            <p class="mb-0">Takip Numarası: <strong id="trackingId"></strong></p>
+                        </div>
+
+                        <div class="alert alert-danger mt-3 d-none" id="errorAlert">
+                            <h4 class="alert-heading">Hata!</h4>
+                            <p id="errorMessage">İşlem sırasında bir hata oluştu.</p>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('paperUploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const successAlert = document.getElementById('successAlert');
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+
+            try {
+                const response = await fetch('/api/papers/upload/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('trackingId').textContent = data.tracking_id;
+                    successAlert.classList.remove('d-none');
+                    errorAlert.classList.add('d-none');
+                    this.reset();
+                } else {
+                    errorMessage.textContent = data.error || 'Makale yüklenirken bir hata oluştu.';
+                    errorAlert.classList.remove('d-none');
+                    successAlert.classList.add('d-none');
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Sunucu bağlantısında bir sorun oluştu.';
+                errorAlert.classList.remove('d-none');
+                successAlert.classList.add('d-none');
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

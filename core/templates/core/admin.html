@@ -1,0 +1,1921 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editör Paneli - Akademik Makale Sistemi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse" style="min-height: 100vh;">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">Editör Paneli</h4>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active text-white" id="tab-papers" href="#">
+                                <i class="bi bi-file-text me-2"></i>Makaleler
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" id="tab-reviewers" href="#">
+                                <i class="bi bi-people me-2"></i>Hakemler
+                            </a>
+                        </li>
+                    </ul>
+                    <hr class="text-white">
+                    <div class="d-grid gap-2 px-4">
+                        <a href="/api/" class="btn btn-outline-light">Ana Sayfaya Dön</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ana İçerik -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <!-- Uyarı Mesajları Container -->
+                <div id="alertContainer" class="mb-3"></div>
+
+                <!-- Makaleler Tab -->
+                <div id="papers-content" class="tab-content active">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Makaleler</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <div class="input-group me-2">
+                                <input type="text" class="form-control" id="paperSearch" placeholder="Ara...">
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                            <div class="btn-group me-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                    Durum Filtrele
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item filter-status" data-status="all" href="#">Tümü</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item filter-status" data-status="submitted" href="#">Yüklendi</a></li>
+                                    <li><a class="dropdown-item filter-status" data-status="processing" href="#">İşleniyor</a></li>
+                                    <li><a class="dropdown-item filter-status" data-status="reviewing" href="#">Değerlendiriliyor</a></li>
+                                    <li><a class="dropdown-item filter-status" data-status="reviewed" href="#">Değerlendirildi</a></li>
+                                    <li><a class="dropdown-item filter-status" data-status="revision" href="#">Revizyon</a></li>
+                                    <li><a class="dropdown-item filter-status" data-status="accepted" href="#">Kabul Edildi</a></li>
+                                    <li><a class="dropdown-item filter-status" data-status="rejected" href="#">Reddedildi</a></li>
+                                </ul>
+                            </div>
+                            <div class="btn-group me-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                    Alan Filtrele
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item filter-field" data-field="" href="#">Tüm Alanlar</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item filter-field" data-field="computer_science" href="#">Computer Science</a></li>
+                                    <li><a class="dropdown-item filter-field" data-field="medicine" href="#">Medicine</a></li>
+                                    <li><a class="dropdown-item filter-field" data-field="engineering" href="#">Engineering</a></li>
+                                    <li><a class="dropdown-item filter-field" data-field="economics" href="#">Economics</a></li>
+                                    <li><a class="dropdown-item filter-field" data-field="social_sciences" href="#">Social Sciences</a></li>
+                                    <li><a class="dropdown-item filter-field" data-field="natural_sciences" href="#">Natural Sciences</a></li>
+                                    <li><a class="dropdown-item filter-field" data-field="humanities" href="#">Humanities</a></li>
+                                    <li><a class="dropdown-item filter-field" data-field="education" href="#">Education</a></li>
+                                    <li><a class="dropdown-item filter-field" data-field="arts" href="#">Arts</a></li>
+                                    <li><a class="dropdown-item filter-field" data-field="other" href="#">Other</a></li>
+                                </ul>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshPapers">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Başlık</th>
+                                    <th>Durum</th>
+                                    <th>Alan</th>
+                                    <th>Yükleme Tarihi</th>
+                                    <th>Anonimleştirildi</th>
+                                    <th>Hakem Atandı</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="papersTableBody">
+                                <!-- JS ile doldurulacak -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Makale Detay Modal -->
+                <div class="modal fade" id="paperDetailModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="paperDetailTitle">Makale Detayı</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Modal içi uyarı mesajları için container ekliyorum -->
+                                <div id="modalAlertContainer" class="mb-3"></div>
+                                
+                                <ul class="nav nav-tabs" id="paperDetailTabs">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="info-tab" data-bs-toggle="tab" href="#info">Bilgiler</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="anonymize-tab" data-bs-toggle="tab" href="#anonymize">Anonimleştirme</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="review-tab" data-bs-toggle="tab" href="#review">Değerlendirme</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="messages-tab" data-bs-toggle="tab" href="#messages">Mesajlar</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="logs-tab" data-bs-toggle="tab" href="#logs">Log Kayıtları</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content pt-3" id="paperDetailTabContent">
+                                    <!-- Bilgiler Tab -->
+                                    <div class="tab-pane fade show active" id="info">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h5>Makale Bilgileri</h5>
+                                                <table class="table">
+                                                    <tr>
+                                                        <th width="30%">Takip ID:</th>
+                                                        <td id="detailTrackingId"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Başlık:</th>
+                                                        <td id="detailTitle"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Yazar E-posta:</th>
+                                                        <td id="detailEmail"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Durum:</th>
+                                                        <td><span class="badge" id="detailStatus"></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Yükleme Tarihi:</th>
+                                                        <td id="detailSubmittedAt"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Son Güncelleme:</th>
+                                                        <td id="detailUpdatedAt"></td>
+                                                    </tr>
+                                                </table>
+
+                                                <div class="mt-3">
+                                                    <a href="#" class="btn btn-primary" id="downloadOriginal">Orijinal PDF İndir</a>
+                                                    <a href="#" class="btn btn-success" id="downloadAnonymized">Anonimleştirilmiş PDF İndir</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>Tespit Edilen Bilgiler</h5>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Yazarlar:</label>
+                                                    <ul class="list-group" id="detailAuthors">
+                                                        <!-- JS ile doldurulacak -->
+                                                    </ul>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Kurumlar:</label>
+                                                    <ul class="list-group" id="detailInstitutions">
+                                                        <!-- JS ile doldurulacak -->
+                                                    </ul>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <div class="d-flex justify-content-between">
+                                                        <label class="form-label">Anahtar Kelimeler:</label>
+                                                        <button class="btn btn-outline-secondary btn-sm" id="editKeywords">
+                                                            <i class="bi bi-pencil"></i> Düzenle
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <!-- Anahtar kelimelerin görüntülendiği alan -->
+                                                    <div id="keywordsDisplay" class="border rounded p-2 bg-light">
+                                                        <div id="keywordsList" class="d-flex flex-wrap gap-1">
+                                                            <!-- JS ile doldurulacak -->
+                                                        </div>
+                                                        <div class="text-muted small" id="noKeywords">
+                                                            Henüz anahtar kelime eklenmemiş.
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Düzenleme modu - varsayılan olarak gizli -->
+                                                    <div id="keywordsEditMode" class="mt-2 d-none">
+                                                        <div class="mb-2">
+                                                            <div id="activeKeywordsList" class="d-flex flex-wrap gap-1 mb-2">
+                                                                <!-- Düzenleme sırasında aktif anahtar kelimeler buraya eklenecek -->
+                                                            </div>
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="newKeyword" 
+                                                                       placeholder="Yeni anahtar kelime ekleyin">
+                                                                <button class="btn btn-outline-secondary" type="button" id="addKeyword">
+                                                                    <i class="bi bi-plus"></i> Ekle
+                                                                </button>
+                                                            </div>
+                                                            <small class="text-muted">Enter tuşuna basarak da ekleyebilirsiniz</small>
+                                                        </div>
+                                                        <input type="hidden" id="detailKeywords">
+                                                        <div class="d-flex gap-2">
+                                                            <button class="btn btn-primary btn-sm" id="saveKeywords">Kaydet</button>
+                                                            <button class="btn btn-outline-secondary btn-sm" id="cancelKeywordsEdit">İptal</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <div class="d-flex justify-content-between">
+                                                        <label class="form-label">Akademik Alan:</label>
+                                                    </div>
+                                                    
+                                                    <div class="d-flex align-items-center">
+                                                        <select class="form-select" id="paperFieldSelect">
+                                                            <option value="">Not Selected</option>
+                                                            <option value="computer_science">Computer Science</option>
+                                                            <option value="medicine">Medicine</option>
+                                                            <option value="engineering">Engineering</option>
+                                                            <option value="economics">Economics</option>
+                                                            <option value="social_sciences">Social Sciences</option>
+                                                            <option value="natural_sciences">Natural Sciences</option>
+                                                            <option value="humanities">Humanities</option>
+                                                            <option value="education">Education</option>
+                                                            <option value="arts">Arts</option>
+                                                            <option value="other">Other</option>
+                                                        </select>
+                                                        <button class="btn btn-outline-primary ms-2" id="saveField">Kaydet</button>
+                                                    </div>
+                                                    <small class="text-muted">Makalenin ait olduğu akademik alanı seçin</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Anonimleştirme Tab -->
+                                    <div class="tab-pane fade" id="anonymize">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h5>Anonimleştirilecek Öğeler</h5>
+                                                <form id="anonymizeForm">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Yazarlar:</label>
+                                                        <div id="authorCheckboxes">
+                                                            <!-- JS ile doldurulacak -->
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Kurumlar:</label>
+                                                        <div id="institutionCheckboxes">
+                                                            <!-- JS ile doldurulacak -->
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="blurImages">
+                                                            <label class="form-check-label" for="blurImages">Görselleri Bulanıklaştır</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <button type="submit" class="btn btn-primary">Anonimleştir</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>Anonimleştirme Durumu</h5>
+                                                <div id="anonymizeStatus">
+                                                    <!-- JS ile doldurulacak -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Değerlendirme Tab -->
+                                    <div class="tab-pane fade" id="review">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h5>Hakem Ataması</h5>
+                                                <div id="reviewerAssignmentForm">
+                                                    <div class="mb-3">
+                                                        <label for="reviewerEmail" class="form-label">Hakem E-posta Adresi:</label>
+                                                        <input type="email" class="form-control" id="reviewerEmail" placeholder="hakem@example.com">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <button type="button" class="btn btn-primary" id="assignReviewer">Hakem Ata</button>
+                                                    </div>
+                                                </div>
+                                                <div id="currentReviewer" class="d-none">
+                                                    <div class="alert alert-info">
+                                                        <h6>Mevcut Hakem:</h6>
+                                                        <p id="currentReviewerEmail"></p>
+                                                        <p><strong>Durum:</strong> <span id="reviewStatus"></span></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>Değerlendirme Sonuçları</h5>
+                                                <div id="reviewResult" class="d-none">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h6 class="card-title">Hakem Değerlendirmesi</h6>
+                                                            <p><strong>Tavsiye:</strong> <span id="reviewRecommendation"></span></p>
+                                                            <p><strong>Yorumlar:</strong></p>
+                                                            <div class="border p-3 bg-light" id="reviewComments"></div>
+                                                            <div class="mt-3">
+                                                                <a href="#" class="btn btn-primary btn-sm" id="downloadReview">Değerlendirmeyi İndir</a>
+                                                                <button type="button" class="btn btn-success btn-sm" id="sendToAuthor">Yazara Gönder</button>
+                                                            </div>
+                                                            <div class="alert alert-info mt-3">
+                                                                <i class="bi bi-info-circle-fill me-2"></i>
+                                                                <strong>Bilgi:</strong> "Değerlendirmeyi İndir" butonuna tıklayarak, hakem yorumlarının 
+                                                                eklenmiş olduğu PDF dosyasını indirebilirsiniz. Bu PDF, makalenin anonimleştirilmiş 
+                                                                versiyonunu ve sonunda hakem değerlendirmesini içermektedir.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="noReviewResult" class="alert alert-warning">
+                                                    Henüz değerlendirme yapılmamış.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mesajlar Tab -->
+                                    <div class="tab-pane fade" id="messages">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div id="messagesContainer" style="max-height: 400px; overflow-y: auto;">
+                                                    <!-- JS ile doldurulacak -->
+                                                </div>
+                                            </div>
+                                            <div class="card-footer">
+                                                <form id="messageForm">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="messageText" placeholder="Mesajınızı yazın...">
+                                                        <button class="btn btn-primary" type="submit">Gönder</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Log Kayıtları Tab -->
+                                    <div class="tab-pane fade" id="logs">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Tarih</th>
+                                                        <th>İşlem</th>
+                                                        <th>Detay</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="logsTableBody">
+                                                    <!-- JS ile doldurulacak -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hakemler Tab -->
+                <div id="reviewers-content" class="tab-content d-none">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Hakemler</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <button type="button" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#addReviewerModal">
+                                <i class="bi bi-plus-circle me-1"></i>Yeni Hakem
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshReviewers">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>E-posta</th>
+                                    <th>Toplam Değerlendirme</th>
+                                    <th>Aktif Değerlendirme</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviewersTableBody">
+                                <!-- JS ile doldurulacak -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Yeni Hakem Modal -->
+                <div class="modal fade" id="addReviewerModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Yeni Hakem Ekle</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="addReviewerForm">
+                                    <div class="mb-3">
+                                        <label for="newReviewerEmail" class="form-label">E-posta Adresi</label>
+                                        <input type="email" class="form-control" id="newReviewerEmail" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="newReviewerName" class="form-label">Ad Soyad</label>
+                                        <input type="text" class="form-control" id="newReviewerName">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="newReviewerSpecialty" class="form-label">Uzmanlık Alanı</label>
+                                        <input type="text" class="form-control" id="newReviewerSpecialty">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                                <button type="button" class="btn btn-primary" id="saveReviewer">Kaydet</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Tab değiştirme - sadece ana panel için
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Tab içeriklerini gizle
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('d-none');
+                });
+
+                // Aktif linki kaldır
+                document.querySelectorAll('.sidebar .nav-link').forEach(navLink => {
+                    navLink.classList.remove('active');
+                });
+
+                // İlgili tab içeriğini göster
+                const tabId = this.id.replace('tab-', '');
+                document.getElementById(`${tabId}-content`).classList.remove('d-none');
+
+                // Bu linki aktif yap
+                this.classList.add('active');
+            });
+        });
+
+        // Modal içindeki sekmeler için Bootstrap tabının düzgün çalışmasını sağlayalım
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bootstrap tab sistemini etkinleştir
+            const modalTabs = document.querySelectorAll('#paperDetailTabs .nav-link');
+            modalTabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Tüm tab-pane'leri gizle
+                    document.querySelectorAll('#paperDetailTabContent .tab-pane').forEach(pane => {
+                        pane.classList.remove('show', 'active');
+                    });
+                    
+                    // Tüm tab butonlarını pasif yap
+                    document.querySelectorAll('#paperDetailTabs .nav-link').forEach(tabBtn => {
+                        tabBtn.classList.remove('active');
+                    });
+                    
+                    // Seçilen tab ve içeriğini aktif et
+                    this.classList.add('active');
+                    const targetPane = document.querySelector(this.getAttribute('href'));
+                    if (targetPane) {
+                        targetPane.classList.add('show', 'active');
+                    }
+                });
+            });
+            
+            // Bulanıklaştırma checkbox'ı değiştiğinde faktör ayarını göster/gizle - KALDIRILDI
+            /*
+            document.getElementById('blurImages').addEventListener('change', function() {
+                const blurFactorContainer = document.getElementById('blurFactorContainer');
+                if (this.checked) {
+                    blurFactorContainer.classList.remove('d-none');
+                } else {
+                    blurFactorContainer.classList.add('d-none');
+                }
+            });
+            */
+
+            // Bulanıklaştırma faktörü değiştiğinde değeri göster - KALDIRILDI
+            /*
+            document.getElementById('blurFactor').addEventListener('input', function() {
+                document.getElementById('blurFactorValue').textContent = this.value;
+            });
+            */
+            
+            // Anahtar kelime kaydetme butonuna tıklama olayı
+            document.getElementById('saveKeywords').addEventListener('click', async function() {
+                const trackingId = document.getElementById('detailTrackingId').textContent;
+                // Hidden input field'dan değeri al (badge'lerden oluşturulan)
+                const keywords = document.getElementById('detailKeywords').value.trim();
+                
+                if (!trackingId) {
+                    console.error('Takip ID bulunamadı');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/api/papers/update-keywords/${trackingId}/?is_editor=true`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            keywords: keywords
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // Başarı mesajı göster - modalın içinde
+                        showAlert('Anahtar kelimeler başarıyla güncellendi.', 'success', true);
+                        
+                        // Anahtar kelimeler alanını güncelle
+                        displayKeywords(keywords);
+                        
+                        // Düzenleme modunu kapat
+                        document.getElementById('keywordsEditMode').classList.add('d-none');
+                        document.getElementById('keywordsDisplay').classList.remove('d-none');
+                        
+                        // Yeni anahtar kelime input alanını temizle
+                        document.getElementById('newKeyword').value = '';
+                    } else {
+                        // Hata mesajı göster - modalın içinde
+                        showAlert(`Hata: ${data.error || 'Anahtar kelimeler güncellenirken bir hata oluştu.'}`, 'danger', true);
+                    }
+                } catch (error) {
+                    console.error('Error updating keywords:', error);
+                    showAlert('Sunucu bağlantısında bir sorun oluştu.', 'danger', true);
+                }
+            });
+            
+            // Düzenle butonuna tıklama olayı
+            document.getElementById('editKeywords').addEventListener('click', function() {
+                // Görüntüleme alanını gizle
+                document.getElementById('keywordsDisplay').classList.add('d-none');
+                // Düzenleme alanını göster
+                document.getElementById('keywordsEditMode').classList.remove('d-none');
+                
+                // Mevcut anahtar kelimeleri düzenlenebilir formatta göster
+                const keywords = document.getElementById('detailKeywords').value;
+                displayEditableKeywords(keywords);
+                
+                // Yeni anahtar kelime alanına odaklan
+                document.getElementById('newKeyword').focus();
+            });
+            
+            // İptal butonuna tıklama olayı
+            document.getElementById('cancelKeywordsEdit').addEventListener('click', function() {
+                // Düzenleme alanını gizle
+                document.getElementById('keywordsEditMode').classList.add('d-none');
+                // Görüntüleme alanını göster
+                document.getElementById('keywordsDisplay').classList.remove('d-none');
+            });
+            
+            // Yeni anahtar kelime ekle butonuna tıklama olayı
+            document.getElementById('addKeyword').addEventListener('click', function() {
+                const newKeyword = document.getElementById('newKeyword').value.trim();
+                if (addNewKeyword(newKeyword)) {
+                    // Başarılı ise input alanını temizle
+                    document.getElementById('newKeyword').value = '';
+                    // Tekrar input alanına odaklan
+                    document.getElementById('newKeyword').focus();
+                }
+            });
+            
+            // Yeni anahtar kelime input alanında Enter tuşuna basma olayı
+            document.getElementById('newKeyword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Formun gönderilmesini engelle
+                    const newKeyword = this.value.trim();
+                    if (addNewKeyword(newKeyword)) {
+                        // Başarılı ise input alanını temizle
+                        this.value = '';
+                    }
+                }
+            });
+            
+            // Alan filtreleme için olay dinleyicilerini ekle
+            document.querySelectorAll('.filter-field').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const field = this.getAttribute('data-field');
+                    filterPapersByField(field);
+                });
+            });
+            
+            // Alan kaydetme butonu için olay dinleyicisi
+            document.getElementById('saveField').addEventListener('click', async function() {
+                const trackingId = document.getElementById('detailTrackingId').textContent;
+                const field = document.getElementById('paperFieldSelect').value;
+                
+                if (!trackingId) {
+                    console.error('Takip ID bulunamadı');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/api/papers/update-field/${trackingId}/?is_editor=true`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            field: field
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // Başarı mesajı göster - modalın içinde
+                        showAlert('Akademik alan başarıyla güncellendi.', 'success', true);
+                    } else {
+                        // Hata mesajı göster - modalın içinde
+                        showAlert(`Hata: ${data.error || 'Alan güncellenirken bir hata oluştu.'}`, 'danger', true);
+                    }
+                } catch (error) {
+                    console.error('Error updating field:', error);
+                    showAlert('Sunucu bağlantısında bir sorun oluştu.', 'danger', true);
+                }
+            });
+        });
+
+        // Mevcut loadPapers fonksiyonunu yedekleyelim
+        const originalLoadPapers = loadPapers;
+
+        // Dosya kontrolü ile makaleleri yükle - YENİ FONKSİYON
+        async function loadPapersWithFileCheck() {
+            try {
+                // Önce normal şekilde makaleleri yükle
+                const response = await fetch('/api/papers/list/?is_editor=true');
+                if (response.ok) {
+                    const papers = await response.json();
+                    console.log('Makaleler yüklendi, dosya kontrolü yapılacak:', papers.length);
+
+                    // Her bir makale için dosya varlığını kontrol et
+                    const validPapers = [];
+                    const invalidPapers = [];
+
+                    for (const paper of papers) {
+                        try {
+                            // Hem orijinal hem de anonimleştirilmiş PDF'in varlığını kontrol et
+                            const originalFileResponse = await fetch(`/media/papers/original/${paper.tracking_id}.pdf`, {
+                                method: 'HEAD'
+                            });
+                            
+                            let isValid = originalFileResponse.ok;
+
+                            // Eğer makale anonimleştirilmiş olarak işaretlenmişse, anonimleştirilmiş dosyayı da kontrol et
+                            if (paper.is_anonymized) {
+                                const anonymizedFileResponse = await fetch(`/media/papers/anonymized/${paper.tracking_id}_anonymized.pdf`, {
+                                    method: 'HEAD'
+                                });
+                                
+                                // Eğer anonimleştirilmiş dosya yoksa, sunucuya bildir
+                                if (!anonymizedFileResponse.ok) {
+                                    console.warn(`Anonimleştirilmiş PDF dosyası bulunamadı: ${paper.tracking_id}`);
+                                    isValid = false;
+                                }
+                            }
+
+                            // Eğer orijinal dosya yoksa, sunucuya bildir
+                            if (!originalFileResponse.ok) {
+                                console.warn(`Orijinal PDF dosyası bulunamadı: ${paper.tracking_id}`);
+                                isValid = false;
+                            }
+
+                            if (isValid) {
+                                validPapers.push(paper);
+                            } else {
+                                invalidPapers.push(paper);
+                                // Sunucuya dosya eksikliğini bildir
+                                await fetch(`/api/papers/sync-files/${paper.tracking_id}/?is_editor=true`, {
+                                    method: 'POST'
+                                });
+                            }
+                        } catch (error) {
+                            console.error(`${paper.tracking_id} için dosya kontrolü hatası:`, error);
+                            invalidPapers.push(paper);
+                        }
+                    }
+
+                    // Tabloya sadece geçerli makaleleri ekle
+                    updatePapersTable(validPapers);
+                    
+                    // Uyarı ver
+                    if (invalidPapers.length > 0) {
+                        showAlert(`${invalidPapers.length} adet PDF dosyası bulunamadı ve sistemden temizlendi.`, 'warning');
+                    }
+                    
+                    console.log(`${papers.length} makaleden ${validPapers.length} tanesi geçerli, ${invalidPapers.length} tanesi eksik PDF'e sahip`);
+                    
+                    // Global değişkene makaleleri ata (filtre için)
+                    window.allPapers = validPapers;
+                    
+                    return Promise.resolve(validPapers);
+                }
+                
+                return Promise.resolve([]);
+            } catch (error) {
+                console.error('Makaleleri yükleme hatası:', error);
+                showAlert('Makale listesi yüklenirken bir hata oluştu.', 'danger');
+                return Promise.reject(error);
+            }
+        }
+
+        // Filtreleme fonksiyonu - YENİ EKLENEN
+        function filterPapersByStatus(status) {
+            if (!window.allPapers) return;
+            
+            let filteredPapers;
+            
+            if (status === 'all') {
+                filteredPapers = window.allPapers;
+            } else {
+                filteredPapers = window.allPapers.filter(paper => paper.status === status);
+            }
+            
+            updatePapersTable(filteredPapers);
+            console.log(`Makaleler '${status}' durumuna göre filtrelendi. ${filteredPapers.length} makale gösteriliyor.`);
+        }
+        
+        // Arama fonksiyonu - YENİ EKLENEN
+        function searchPapers(query) {
+            if (!window.allPapers || !query) {
+                // Arama sorgusu boşsa tüm makaleleri göster
+                if (!query) {
+                    updatePapersTable(window.allPapers);
+                    return;
+                }
+                return;
+            }
+            
+            query = query.toLowerCase();
+            
+            // Başlık ve ID içinde arama yap
+            const filteredPapers = window.allPapers.filter(paper => {
+                const title = (paper.title || '').toLowerCase();
+                const id = paper.tracking_id.toLowerCase();
+                
+                return title.includes(query) || id.includes(query);
+            });
+            
+            updatePapersTable(filteredPapers);
+            console.log(`Arama sonuçları: "${query}" için ${filteredPapers.length} makale bulundu.`);
+        }
+
+        // Makale tablosunu güncelle - YENİ FONKSİYON
+        function updatePapersTable(papers) {
+            const tableBody = document.getElementById('papersTableBody');
+            tableBody.innerHTML = '';
+
+            papers.forEach(paper => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${paper.tracking_id.substring(0, 8)}...</td>
+                    <td>${paper.title || `Paper ${paper.tracking_id.substring(0, 8)}`}</td>
+                    <td><span class="badge ${getStatusClass(paper.status)}">${getStatusText(paper.status)}</span></td>
+                    <td>${paper.field_display || 'Not Selected'}</td>
+                    <td>${formatDate(paper.submitted_at)}</td>
+                    <td>${paper.is_anonymized ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-x-circle text-danger"></i>'}</td>
+                    <td>${paper.has_reviewer ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-x-circle text-danger"></i>'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary view-paper" data-id="${paper.tracking_id}">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Makale detay butonlarına olay dinleyicisi ekle
+            document.querySelectorAll('.view-paper').forEach(button => {
+                button.addEventListener('click', function() {
+                    const trackingId = this.getAttribute('data-id');
+                    openPaperDetailWithCheck(trackingId);
+                });
+            });
+        }
+
+        // Detay görüntülemeden önce dosya kontrolü yap - YENİ FONKSİYON
+        async function openPaperDetailWithCheck(trackingId) {
+            try {
+                // Önce dosya varlığını kontrol et
+                const fileCheckResponse = await fetch(`/media/papers/original/${trackingId}.pdf`, {
+                    method: 'HEAD'
+                });
+
+                if (!fileCheckResponse.ok) {
+                    alert('Bu makalenin PDF dosyası sistemde bulunamadı. Makale kaydı silinmiş olabilir.');
+                    return;
+                }
+
+                // Sonra normal detay fonksiyonunu çağır
+                openPaperDetail(trackingId);
+            } catch (error) {
+                console.error(`${trackingId} için dosya kontrolü hatası:`, error);
+                alert('Dosya kontrolü sırasında bir hata oluştu.');
+            }
+        }
+
+        // Burada editör paneli için JavaScript kodları yer alacak
+        // Makale listesi yükleme, detay görüntüleme, anonimleştirme, hakem atama vb. işlemler
+
+        // Örnek: Makale listesi yükleme
+        async function loadPapers() {
+            try {
+                const response = await fetch('/api/papers/list/?is_editor=true');
+                if (response.ok) {
+                    const papers = await response.json();
+                    const tableBody = document.getElementById('papersTableBody');
+                    tableBody.innerHTML = '';
+
+                    papers.forEach(paper => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${paper.tracking_id.substring(0, 8)}...</td>
+                            <td>${paper.title || `Paper ${paper.tracking_id.substring(0, 8)}`}</td>
+                            <td><span class="badge ${getStatusClass(paper.status)}">${getStatusText(paper.status)}</span></td>
+                            <td>${paper.field_display || 'Not Selected'}</td>
+                            <td>${formatDate(paper.submitted_at)}</td>
+                            <td>${paper.is_anonymized ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-x-circle text-danger"></i>'}</td>
+                            <td>${paper.has_reviewer ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-x-circle text-danger"></i>'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary view-paper" data-id="${paper.tracking_id}">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+
+                    // Makale detay butonlarına olay dinleyicisi ekle
+                    document.querySelectorAll('.view-paper').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const trackingId = this.getAttribute('data-id');
+                            openPaperDetail(trackingId);
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading papers:', error);
+            }
+        }
+
+        // Sayfa yüklendiğinde makale listesini yükle - MODİFİYE EDİLDİ
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filtreleme işlemi için olay dinleyicilerini ekle
+            document.querySelectorAll('.filter-status').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const status = this.getAttribute('data-status');
+                    filterPapersByStatus(status);
+                });
+            });
+            
+            // Arama işlemi için olay dinleyicisi ekle
+            const searchButton = document.querySelector('.btn-outline-secondary');
+            const searchInput = document.getElementById('paperSearch');
+            
+            searchButton.addEventListener('click', function() {
+                searchPapers(searchInput.value.trim());
+            });
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchPapers(this.value.trim());
+                }
+            });
+            
+            // Orijinal loadPapers yerine dosya kontrolü ile yükleme yapan fonksiyonu kullan
+            loadPapersWithFileCheck().then(() => {
+                // Sayfa yeniden yüklendiğinde, son anonimleştirilen makaleyi kontrol et
+                const lastAnonymizedPaper = localStorage.getItem('last_anonymized_paper');
+                
+                if (lastAnonymizedPaper) { // Sadece makale ID'sini kontrol et
+                    // localStorage verilerini temizle
+                    localStorage.removeItem('last_anonymized_paper');
+                    
+                    // Makale detayını aç (varsayılan olarak Bilgiler sekmesi açılacak)
+                    console.log('Önceki anonimleştirme işleminden sonra bilgiler sekmesi açılıyor:', lastAnonymizedPaper);
+                    openPaperDetail(lastAnonymizedPaper);
+                }
+            });
+
+            console.log('Dosya kontrol sistemi aktifleştirildi');
+        });
+
+        // Yenile butonları - MODİFİYE EDİLDİ
+        document.getElementById('refreshPapers').addEventListener('click', loadPapersWithFileCheck);
+
+        // Makale detayını görüntüleme
+        async function openPaperDetail(trackingId) {
+            try {
+                // Modal tablarını sıfırla - önce ilk sekmeye dön
+                resetModalTabs();
+                
+                const response = await fetch(`/api/papers/detail/${trackingId}/?is_editor=true`);
+                if (response.ok) {
+                    const paper = await response.json();
+                    
+                    // Bilgiler tabını doldur
+                    document.getElementById('detailTrackingId').textContent = paper.tracking_id;
+                    document.getElementById('detailTitle').textContent = paper.title || `Paper ${paper.tracking_id}`;
+                    document.getElementById('detailEmail').textContent = paper.email;
+
+                    const statusBadge = document.getElementById('detailStatus');
+                    statusBadge.textContent = getStatusText(paper.status);
+                    statusBadge.className = `badge ${getStatusClass(paper.status)}`;
+
+                    document.getElementById('detailSubmittedAt').textContent = formatDate(paper.submitted_at);
+                    document.getElementById('detailUpdatedAt').textContent = formatDate(paper.updated_at);
+                    document.getElementById('detailKeywords').value = paper.keywords || '';
+                    
+                    // Anahtar kelimeleri görsel alanda göster
+                    displayKeywords(paper.keywords || '');
+
+                    // Yukarıdaki koddan sonra ekleyeceğim:
+
+                    // Alan bilgisini seçicide göster
+                    const fieldSelect = document.getElementById('paperFieldSelect');
+                    fieldSelect.value = paper.field || '';
+
+                    // İndirme bağlantıları
+                    document.getElementById('downloadOriginal').href = `/media/papers/original/${paper.tracking_id}.pdf`;
+
+                    if (paper.is_anonymized) {
+                        document.getElementById('downloadAnonymized').href = `/media/papers/anonymized/${paper.tracking_id}_anonymized.pdf`;
+                        document.getElementById('downloadAnonymized').classList.remove('disabled');
+                    } else {
+                        document.getElementById('downloadAnonymized').classList.add('disabled');
+                    }
+
+                    // Yazarlar ve kurumlar
+                    const authorsContainer = document.getElementById('detailAuthors');
+                    authorsContainer.innerHTML = '';
+
+                    if (paper.authors && paper.authors.length > 0) {
+                        paper.authors.forEach(author => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            li.textContent = author;
+                            authorsContainer.appendChild(li);
+                        });
+                    } else {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.textContent = 'Yazar tespit edilemedi';
+                        authorsContainer.appendChild(li);
+                    }
+
+                    const institutionsContainer = document.getElementById('detailInstitutions');
+                    institutionsContainer.innerHTML = '';
+
+                    if (paper.institutions && paper.institutions.length > 0) {
+                        paper.institutions.forEach(institution => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            li.textContent = institution;
+                            institutionsContainer.appendChild(li);
+                        });
+                    } else {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.textContent = 'Kurum tespit edilemedi';
+                        institutionsContainer.appendChild(li);
+                    }
+
+                    // Log kayıtları
+                    const logsTableBody = document.getElementById('logsTableBody');
+                    logsTableBody.innerHTML = '';
+
+                    if (paper.logs && paper.logs.length > 0) {
+                        paper.logs.forEach(log => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${formatDate(log.timestamp)}</td>
+                                <td>${log.action}</td>
+                                <td>${log.details || '-'}</td>
+                            `;
+                            logsTableBody.appendChild(row);
+                        });
+                    }
+
+                    // Mesajları yükle
+                    await loadMessages(trackingId);
+
+                    // Anonimleştirme ekranını doldur
+                    populateAnonymizationForm(paper);
+
+                    // Değerlendirme ekranını doldur
+                    await populateReviewTab(trackingId);
+                    
+                    // Modalı göster
+                    const modal = new bootstrap.Modal(document.getElementById('paperDetailModal'));
+                    modal.show();
+                    
+                    // Promise'i başarılı şekilde çöz
+                    return Promise.resolve();
+                }
+            } catch (error) {
+                console.error('Error loading paper details:', error);
+                alert('Makale detayları yüklenirken bir hata oluştu.');
+                return Promise.reject(error);
+            }
+        }
+        
+        // Modal tab'larını sıfırlama ve ilk sekmeyi aktif etme fonksiyonu
+        function resetModalTabs() {
+            // Tüm tab-pane'leri gizle
+            document.querySelectorAll('#paperDetailTabContent .tab-pane').forEach(tab => {
+                tab.classList.remove('show', 'active');
+            });
+            
+            // Tüm tab butonlarını pasif yap
+            document.querySelectorAll('#paperDetailTabs .nav-link').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // İlk sekmeyi ve içeriğini aktif et
+            document.getElementById('info-tab').classList.add('active');
+            document.getElementById('info').classList.add('show', 'active');
+        }
+        
+        // Modal kapandığında makale listesini yeniden yükle ve modal içeriğini temizle
+        document.getElementById('paperDetailModal').addEventListener('hidden.bs.modal', function () {
+            // Makale listesini yenile
+            loadPapersWithFileCheck();
+            
+            // Modal içeriğini temizle
+            clearModalContent();
+        });
+
+        // Modal içeriğini temizleme fonksiyonu
+        function clearModalContent() {
+            // Bilgiler tabını temizle
+            document.getElementById('detailTrackingId').textContent = '';
+            document.getElementById('detailTitle').textContent = '';
+            document.getElementById('detailEmail').textContent = '';
+            document.getElementById('detailSubmittedAt').textContent = '';
+            document.getElementById('detailUpdatedAt').textContent = '';
+            document.getElementById('detailKeywords').value = '';
+            
+            // Anahtar kelimeleri temizle
+            document.getElementById('keywordsList').innerHTML = '';
+            document.getElementById('noKeywords').style.display = 'block';
+            
+            // Düzenleme modunu gizle
+            document.getElementById('keywordsEditMode').classList.add('d-none');
+            document.getElementById('keywordsDisplay').classList.remove('d-none');
+            
+            // Alan seçiciyi sıfırla
+            document.getElementById('paperFieldSelect').value = '';
+            
+            // İndirme bağlantılarını sıfırla
+            document.getElementById('downloadOriginal').href = '#';
+            document.getElementById('downloadAnonymized').href = '#';
+            document.getElementById('downloadAnonymized').classList.add('disabled');
+            
+            // Yazarlar ve kurumlar listesini temizle
+            document.getElementById('detailAuthors').innerHTML = '';
+            document.getElementById('detailInstitutions').innerHTML = '';
+            
+            // Anonimleştirme ekranını sıfırla
+            document.getElementById('authorCheckboxes').innerHTML = '';
+            document.getElementById('institutionCheckboxes').innerHTML = '';
+            document.getElementById('anonymizeStatus').innerHTML = '';
+            
+            // Mesajlar içeriğini temizle
+            document.getElementById('messagesContainer').innerHTML = '';
+            document.getElementById('messageText').value = '';
+            
+            // Log kayıtlarını temizle
+            document.getElementById('logsTableBody').innerHTML = '';
+        }
+
+        // Yardımcı fonksiyonlar
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('tr-TR');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'submitted': 'Yüklendi',
+                'processing': 'İşleniyor',
+                'reviewing': 'Değerlendiriliyor',
+                'reviewed': 'Değerlendirildi',
+                'revision': 'Revizyon',
+                'accepted': 'Kabul Edildi',
+                'rejected': 'Reddedildi'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getStatusClass(status) {
+            const classMap = {
+                'submitted': 'bg-secondary',
+                'processing': 'bg-info',
+                'reviewing': 'bg-primary',
+                'reviewed': 'bg-warning',
+                'revision': 'bg-warning',
+                'accepted': 'bg-success',
+                'rejected': 'bg-danger'
+            };
+            return classMap[status] || 'bg-secondary';
+        }
+
+        // Mesajları yükleme fonksiyonu
+        async function loadMessages(trackingId) {
+            try {
+                const response = await fetch(`/api/papers/messages/${trackingId}/?is_editor=true`);
+                if (response.ok) {
+                    const messages = await response.json();
+                    const messagesContainer = document.getElementById('messagesContainer');
+                    messagesContainer.innerHTML = '';
+                    
+                    if (messages && messages.length > 0) {
+                        messages.forEach(message => {
+                            // Sadece is_editor alanını kontrol et
+                            const isEditor = message.is_editor === true;
+                            
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = `message-item p-3 mb-3 rounded ${isEditor ? 'bg-primary text-white' : 'bg-light'}`;
+                            
+                            messageDiv.innerHTML = `
+                                <div class="d-flex justify-content-between mb-2">
+                                    <strong>${isEditor ? 'Editör' : 'Yazar'}</strong>
+                                    <small>${formatDate(message.created_at)}</small>
+                                </div>
+                                <div class="message-content">${message.content}</div>
+                            `;
+                            
+                            messagesContainer.appendChild(messageDiv);
+                        });
+                    } else {
+                        messagesContainer.innerHTML = '<div class="alert alert-info">Henüz mesaj bulunmamaktadır.</div>';
+                    }
+                    
+                    // Mesaj formunu ayarla
+                    const messageForm = document.getElementById('messageForm');
+                    messageForm.onsubmit = async function(e) {
+                        e.preventDefault();
+                        const messageText = document.getElementById('messageText').value.trim();
+                        if (!messageText) return;
+                        
+                        try {
+                            const response = await fetch(`/api/papers/messages/${trackingId}/?is_editor=true`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ content: messageText })
+                            });
+                            
+                            if (response.ok) {
+                                document.getElementById('messageText').value = '';
+                                loadMessages(trackingId); // Mesajları yeniden yükle
+                            }
+                        } catch (error) {
+                            console.error('Error sending message:', error);
+                        }
+                    };
+                    
+                    return Promise.resolve();
+                } else {
+                    document.getElementById('messagesContainer').innerHTML = '<div class="alert alert-warning">Mesajlar yüklenemedi.</div>';
+                    return Promise.resolve();
+                }
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                document.getElementById('messagesContainer').innerHTML = '<div class="alert alert-danger">Mesajlar yüklenirken bir hata oluştu.</div>';
+                return Promise.reject(error);
+            }
+        }
+        
+        // Hakem ekleme işlemleri
+        document.getElementById('saveReviewer').addEventListener('click', async function() {
+            const email = document.getElementById('newReviewerEmail').value.trim();
+            const name = document.getElementById('newReviewerName').value.trim();
+            const specialty = document.getElementById('newReviewerSpecialty').value.trim();
+
+            if (!email) {
+                alert('E-posta adresi gereklidir!');
+                return;
+            }
+
+            try {
+                // URL'de is_editor=true parametresinin eklendiğinden emin olalım
+                const response = await fetch('/api/users/reviewers/add/?is_editor=true', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        name: name,
+                        specialty: specialty
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Formu temizle
+                    document.getElementById('newReviewerEmail').value = '';
+                    document.getElementById('newReviewerName').value = '';
+                    document.getElementById('newReviewerSpecialty').value = '';
+
+                    // Modalı kapat
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addReviewerModal'));
+                    modal.hide();
+
+                    // Hakem listesini yenile
+                    loadReviewers();
+
+                    // Başarı mesajı göster
+                    alert('Hakem başarıyla eklendi!');
+                }
+            } catch (error) {
+                console.error('Error adding reviewer:', error);
+                alert('Sunucu bağlantısında bir sorun oluştu.');
+            }
+        });
+
+        // Hakem listesini yükleme
+        async function loadReviewers() {
+            try {
+                const response = await fetch('/api/users/reviewers/list/?is_editor=true');
+
+                if (response.ok) {
+                    const reviewers = await response.json();
+                    const tableBody = document.getElementById('reviewersTableBody');
+                    tableBody.innerHTML = '';
+
+                    reviewers.forEach(reviewer => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${reviewer.email}</td>
+                            <td>${reviewer.total_reviews || 0}</td>
+                            <td>${reviewer.active_reviews || 0}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info view-reviewer" data-id="${reviewer.id}">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-reviewer" data-id="${reviewer.id}" data-email="${reviewer.email}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+
+                    // Hakem silme butonlarına olay dinleyicisi ekle
+                    document.querySelectorAll('.delete-reviewer').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const id = this.getAttribute('data-id');
+                            const email = this.getAttribute('data-email');
+
+                            if (confirm(`"${email}" e-posta adresli hakemi silmek istediğinize emin misiniz?`)) {
+                                deleteReviewer(id);
+                            }
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading reviewers:', error);
+            }
+        }
+
+        // Hakem silme işlemi
+        async function deleteReviewer(reviewerId) {
+            try {
+                const response = await fetch(`/api/users/reviewers/delete/${reviewerId}/?is_editor=true`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    // Hakem listesini yenile
+                    loadReviewers();
+                    alert('Hakem başarıyla silindi!');
+                } else {
+                    const errorData = await response.json();
+                    alert(`Hata: ${errorData.error || 'Hakem silinirken bir sorun oluştu.'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting reviewer:', error);
+                alert('Sunucu bağlantısında bir sorun oluştu.');
+            }
+        }
+
+        // Sayfa yüklendiğinde hakem listesini yükle
+        document.getElementById('tab-reviewers').addEventListener('click', function() {
+            loadReviewers();
+        });
+
+        // Hakem listesi yenileme butonu
+        document.getElementById('refreshReviewers').addEventListener('click', loadReviewers);
+
+        // Anonimleştirme formunu doldurma fonksiyonu
+        function populateAnonymizationForm(paper) {
+            // Anonimleştirme durumunu ve anonimleştirilmiş öğeleri al
+            const is_anonymized = paper.is_anonymized || false;
+            const anonymized_items = paper.anonymized_items || []; // Varsayılan boş liste
+            const has_blurrable_images = paper.has_blurrable_images || false; // Backend'den gelen değeri al
+            
+            // Bulanıklaştırma seçeneğini göster veya gizle
+            const blurImagesContainer = document.getElementById('blurImages').parentNode.parentNode;
+            if (has_blurrable_images) {
+                blurImagesContainer.style.display = 'block';
+                // Eğer bulanıklaştırılabilir görsel varsa, checkbox'ı aktif et
+                document.getElementById('blurImages').disabled = is_anonymized;
+            } else {
+                blurImagesContainer.style.display = 'none';
+                // Bulanıklaştırılabilir görsel yoksa, checkbox'ı işaretsiz yap
+                document.getElementById('blurImages').checked = false;
+            }
+            
+            // Yazarlar için onay kutuları oluştur
+            const authorCheckboxes = document.getElementById('authorCheckboxes');
+            authorCheckboxes.innerHTML = '';
+
+            if (paper.authors && paper.authors.length > 0) {
+                paper.authors.forEach((author, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+                    // Anonimleştirilmişse, sadece anonimleştirilmiş olanları işaretle ve hepsini devre dışı bırak
+                    const isChecked = is_anonymized ? anonymized_items.includes(author) : true;
+                    const isDisabled = is_anonymized ? 'disabled' : '';
+                    
+                    div.innerHTML = `
+                        <input class="form-check-input author-checkbox" type="checkbox" value="${author}" id="author${index}" ${isChecked ? 'checked' : ''} ${isDisabled}>
+                        <label class="form-check-label" for="author${index}">
+                            ${author}
+                        </label>
+                    `;
+                    authorCheckboxes.appendChild(div);
+                });
+            } else {
+                authorCheckboxes.innerHTML = '<div class="alert alert-warning">Yazar tespit edilemedi</div>';
+            }
+
+            // Kurumlar için onay kutuları oluştur
+            const institutionCheckboxes = document.getElementById('institutionCheckboxes');
+            institutionCheckboxes.innerHTML = '';
+
+            if (paper.institutions && paper.institutions.length > 0) {
+                paper.institutions.forEach((institution, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+                    // Anonimleştirilmişse, sadece anonimleştirilmiş olanları işaretle ve hepsini devre dışı bırak
+                    const isChecked = is_anonymized ? anonymized_items.includes(institution) : true;
+                    const isDisabled = is_anonymized ? 'disabled' : '';
+                    
+                    div.innerHTML = `
+                        <input class="form-check-input institution-checkbox" type="checkbox" value="${institution}" id="institution${index}" ${isChecked ? 'checked' : ''} ${isDisabled}>
+                        <label class="form-check-label" for="institution${index}">
+                            ${institution}
+                        </label>
+                    `;
+                    institutionCheckboxes.appendChild(div);
+                });
+            } else {
+                institutionCheckboxes.innerHTML = '<div class="alert alert-warning">Kurum tespit edilemedi</div>';
+            }
+
+            // Anonimleştirme durumunu göster
+            const anonymizeStatus = document.getElementById('anonymizeStatus');
+            
+            if (is_anonymized) { // is_anonymized değişkenini kullan
+                anonymizeStatus.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        Bu makale anonimleştirilmiştir.
+                    </div>
+                    <p>Anonimleştirme Tarihi: ${formatDate(paper.anonymized_at)}</p>
+                `;
+            } else {
+                anonymizeStatus.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Bu makale henüz anonimleştirilmemiştir.
+                    </div>
+                `;
+            }
+            
+            // Anonimleştirme butonunu ayarla
+            const anonymizeButton = document.querySelector('#anonymizeForm button[type="submit"]');
+            if (anonymizeButton) {
+                anonymizeButton.disabled = is_anonymized; // Anonimleştirilmişse devre dışı bırak
+            }
+
+            // Anonimleştirme formuna olay dinleyicisi ekle (tekrar eklenmesini önlemek için önce kaldır)
+            const form = document.getElementById('anonymizeForm');
+            const currentHandler = form.getAttribute('data-handler-attached');
+            if (currentHandler) {
+                form.removeEventListener('submit', window.anonymizeHandler); // Eski handler'ı kaldır
+            }
+            
+            window.anonymizeHandler = function(e) { // Handler'ı global bir değişkende sakla
+                e.preventDefault();
+                anonymizePaper(paper.tracking_id);
+            };
+            
+            form.addEventListener('submit', window.anonymizeHandler);
+            form.setAttribute('data-handler-attached', 'true'); // Handler'ın eklendiğini işaretle
+        }
+
+        // Anonimleştirme işlemi
+        async function anonymizePaper(trackingId) {
+            // Seçili yazarları ve kurumları al
+            const selectedAuthors = [];
+            document.querySelectorAll('.author-checkbox:checked').forEach(checkbox => {
+                selectedAuthors.push(checkbox.value);
+            });
+
+            const selectedInstitutions = [];
+            document.querySelectorAll('.institution-checkbox:checked').forEach(checkbox => {
+                selectedInstitutions.push(checkbox.value);
+            });
+
+            if (selectedAuthors.length === 0 && selectedInstitutions.length === 0) {
+                alert('Lütfen en az bir öğe seçin!');
+                return;
+            }
+            
+            // Bulanıklaştırma seçeneklerini al
+            const blurImages = document.getElementById('blurImages').checked;
+            // const blurFactor = parseInt(document.getElementById('blurFactor').value, 10); // Bu satır kaldırıldı
+            const blurFactor = 10; // Faktör sabit olarak 10 ayarlandı
+            
+            console.log(`Görsel bulanıklaştırma: ${blurImages ? 'Aktif' : 'Pasif'}, Faktör: ${blurFactor}`);
+
+            try {
+                const response = await fetch(`/api/papers/anonymize/${trackingId}/?is_editor=true`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        authors: selectedAuthors,
+                        institutions: selectedInstitutions,
+                        blur_images: blurImages,
+                        blur_factor: blurFactor
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Makale detay bilgilerini localStorage'a kaydet
+                    localStorage.setItem('last_anonymized_paper', trackingId);
+                    
+                    // Anonimleştirme başarılı mesajı göster
+                    alert('Makale başarıyla anonimleştirildi!');
+                    
+                    // Modalı kapat
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('paperDetailModal'));
+                    modal.hide();
+                    
+                    // Sayfayı tamamen yenile
+                    window.location.reload();
+                } else {
+                    alert(`Hata: ${data.error || 'Anonimleştirme sırasında bir sorun oluştu.'}`);
+                }
+            } catch (error) {
+                console.error('Error anonymizing paper:', error);
+                alert('Sunucu bağlantısında bir sorun oluştu.');
+            }
+        }
+
+        // Değerlendirme sekmesini doldurma fonksiyonu
+        async function populateReviewTab(trackingId) {
+            try {
+                const response = await fetch(`/api/papers/detail/${trackingId}/?is_editor=true`);
+                if (response.ok) {
+                    const paper = await response.json();
+                    
+                    // Hakem atama formunu veya mevcut hakem bilgisini göster
+                    const reviewerAssignmentForm = document.getElementById('reviewerAssignmentForm');
+                    const currentReviewer = document.getElementById('currentReviewer');
+                    const reviewResult = document.getElementById('reviewResult');
+                    const noReviewResult = document.getElementById('noReviewResult');
+
+                    // Önce tüm alanları temizle
+                    document.getElementById('reviewerEmail').value = '';
+                    document.getElementById('currentReviewerEmail').textContent = '';
+                    document.getElementById('reviewStatus').textContent = '';
+                    
+                    // Hakem atama butonuna olay dinleyicisi ekle
+                    document.getElementById('assignReviewer').onclick = function() {
+                        assignReviewer(trackingId);
+                    };
+
+                    // Makale anonimleştirilmemiş ise hakem atanamaz
+                    if (!paper.is_anonymized) {
+                        reviewerAssignmentForm.innerHTML = `
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Hakem atayabilmek için önce makaleyi anonimleştirmelisiniz.
+                            </div>
+                        `;
+                        currentReviewer.classList.add('d-none');
+                        reviewResult.classList.add('d-none');
+                        noReviewResult.classList.remove('d-none');
+                        return;
+                    }
+
+                    // Hakem durumunu kontrol et
+                    const reviewResponse = await fetch(`/api/papers/review-status/${trackingId}/?is_editor=true`);
+                    if (reviewResponse.ok) {
+                        const reviewData = await reviewResponse.json();
+                        
+                        if (reviewData.reviewer_email) {
+                            // Mevcut hakem varsa formu gizle, hakem bilgisini göster
+                            reviewerAssignmentForm.classList.add('d-none');
+                            currentReviewer.classList.remove('d-none');
+                            
+                            document.getElementById('currentReviewerEmail').textContent = reviewData.reviewer_email;
+                            document.getElementById('reviewStatus').textContent = getReviewStatusText(reviewData.status);
+                            
+                            // Değerlendirme sonucunu göster veya gizle
+                            if (reviewData.is_completed) {
+                                reviewResult.classList.remove('d-none');
+                                noReviewResult.classList.add('d-none');
+                                
+                                document.getElementById('reviewRecommendation').textContent = getRecommendationText(reviewData.recommendation);
+                                document.getElementById('reviewComments').innerHTML = reviewData.comments || 'Yorum yok';
+                                
+                                if (reviewData.review_file) {
+                                    const downloadReview = document.getElementById('downloadReview');
+                                    downloadReview.href = reviewData.review_file;
+                                    downloadReview.classList.remove('disabled');
+                                    
+
+                                    const sendToAuthor = document.getElementById('sendToAuthor');
+                                    sendToAuthor.onclick = async function() {
+                                        if (confirm('Değerlendirmeyi şifresi çözülmüş şekilde yazara göndermek istediğinize emin misiniz? Bu işlem geri alınamaz ve yazar orijinal PDF ile değerlendirmeyi görebilecektir.')) {
+                                            try {
+                                                const response = await fetch(`/api/reviews/send-to-author/${trackingId}/?is_editor=true`, {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json'
+                                                    }
+                                                });
+                                                
+                                                const data = await response.json();
+                                                
+                                                if (response.ok) {
+                                                    alert('Değerlendirme şifresi çözülerek yazara başarıyla gönderildi!');
+                                                    // Makale listesini yenile
+                                                    loadPapersWithFileCheck();
+                                                    // Modali kapat
+                                                    const modal = bootstrap.Modal.getInstance(document.getElementById('paperDetailModal'));
+                                                    modal.hide();
+                                                } else {
+                                                    alert(`Hata: ${data.error || 'Değerlendirme gönderilirken bir sorun oluştu.'}`);
+                                                }
+                                            } catch (error) {
+                                                console.error('Error sending review to author:', error);
+                                                alert('Sunucu bağlantısında bir sorun oluştu.');
+                                            }
+                                        }
+                                    };
+                                }
+                            } else {
+                                reviewResult.classList.add('d-none');
+                                noReviewResult.classList.remove('d-none');
+                            }
+                        } else {
+                            // Hakem yoksa atama formunu göster
+                            reviewerAssignmentForm.classList.remove('d-none');
+                            currentReviewer.classList.add('d-none');
+                            reviewResult.classList.add('d-none');
+                            noReviewResult.classList.remove('d-none');
+                        }
+                    } else {
+                        console.error('Error fetching review status:', reviewResponse.statusText);
+                    }
+                }
+            } catch (error) {
+                console.error('Error populating review tab:', error);
+            }
+        }
+
+        // Hakem atama işlemi
+        async function assignReviewer(trackingId) {
+            const reviewerEmail = document.getElementById('reviewerEmail').value.trim();
+            
+            if (!reviewerEmail) {
+                alert('Lütfen hakem e-posta adresini girin!');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/papers/assign/${trackingId}/?is_editor=true`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        reviewer_email: reviewerEmail
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Hakem başarıyla atandı!');
+
+                    populateReviewTab(trackingId);
+
+                    loadPapersWithFileCheck();
+                } else {
+                    alert(`Hata: ${data.error || 'Hakem atama sırasında bir sorun oluştu.'}`);
+                }
+            } catch (error) {
+                console.error('Error assigning reviewer:', error);
+                alert('Sunucu bağlantısında bir sorun oluştu.');
+            }
+        }
+
+
+        function getReviewStatusText(status) {
+            const statusMap = {
+                'assigned': 'Atandı',
+                'in_progress': 'Değerlendiriliyor',
+                'completed': 'Tamamlandı',
+                'rejected': 'Reddedildi'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getRecommendationText(recommendation) {
+            const recommendationMap = {
+                'accept': 'Kabul',
+                'reject': 'Red',
+                'revise': 'Revizyon'
+            };
+            return recommendationMap[recommendation] || recommendation;
+        }
+
+
+        function showAlert(message, type = 'info', inModal = false) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+            `;
+            
+
+            const alertContainer = inModal ? 
+                document.getElementById('modalAlertContainer') : 
+                document.getElementById('alertContainer');
+                
+            if (alertContainer) {
+                alertContainer.appendChild(alertDiv);
+                
+
+                setTimeout(() => {
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => alertDiv.remove(), 150);
+                }, 5000);
+            }
+        }
+
+        document.getElementById('downloadReview').addEventListener('click', function(e) {
+            if (this.classList.contains('disabled')) {
+                e.preventDefault();
+            }
+        });
+
+
+        function displayKeywords(keywordsString) {
+            const keywordsList = document.getElementById('keywordsList');
+            const noKeywords = document.getElementById('noKeywords');
+            
+            keywordsList.innerHTML = '';
+            
+            if (!keywordsString.trim()) {
+
+                noKeywords.style.display = 'block';
+                return;
+            }
+            
+
+            noKeywords.style.display = 'none';
+            
+
+            const keywords = keywordsString.split(',').map(k => k.trim()).filter(k => k);
+            
+            keywords.forEach(keyword => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-info text-dark m-1';
+                badge.textContent = keyword;
+                keywordsList.appendChild(badge);
+            });
+        }
+        
+
+        function displayEditableKeywords(keywordsString) {
+            const activeKeywordsList = document.getElementById('activeKeywordsList');
+            const hiddenField = document.getElementById('detailKeywords');
+            
+
+            activeKeywordsList.innerHTML = '';
+            
+
+            const keywords = keywordsString.split(',')
+                .map(k => k.trim())
+                .filter(k => k);
+            
+
+            hiddenField.value = keywords.join(',');
+            
+
+            keywords.forEach(keyword => {
+                const badge = document.createElement('div');
+                badge.className = 'badge bg-info text-dark m-1 d-flex align-items-center';
+                badge.innerHTML = `
+                    <span class="me-1">${keyword}</span>
+                    <button type="button" class="btn-close btn-close-white btn-sm" 
+                            aria-label="Sil" style="font-size: 0.6rem"></button>
+                `;
+                
+
+                const closeButton = badge.querySelector('.btn-close');
+                closeButton.addEventListener('click', function() {
+
+                    badge.remove();
+                    
+
+                    updateHiddenKeywords();
+                });
+                
+                activeKeywordsList.appendChild(badge);
+            });
+        }
+        
+
+        function updateHiddenKeywords() {
+            const activeKeywordsList = document.getElementById('activeKeywordsList');
+            const hiddenField = document.getElementById('detailKeywords');
+            
+
+            const keywords = [];
+            activeKeywordsList.querySelectorAll('.badge').forEach(badge => {
+                const text = badge.querySelector('span').textContent.trim();
+                if (text) {
+                    keywords.push(text);
+                }
+            });
+            
+
+            hiddenField.value = keywords.join(',');
+        }
+        
+
+        function addNewKeyword(keyword) {
+            if (!keyword.trim()) return false;
+            
+            const activeKeywordsList = document.getElementById('activeKeywordsList');
+            
+
+            const existingKeywords = [];
+            activeKeywordsList.querySelectorAll('.badge span').forEach(span => {
+                existingKeywords.push(span.textContent.trim().toLowerCase());
+            });
+            
+            if (existingKeywords.includes(keyword.toLowerCase())) {
+
+                return false;
+            }
+            
+
+            const badge = document.createElement('div');
+            badge.className = 'badge bg-info text-dark m-1 d-flex align-items-center';
+            badge.innerHTML = `
+                <span class="me-1">${keyword}</span>
+                <button type="button" class="btn-close btn-close-white btn-sm" 
+                        aria-label="Sil" style="font-size: 0.6rem"></button>
+            `;
+            
+
+            const closeButton = badge.querySelector('.btn-close');
+            closeButton.addEventListener('click', function() {
+
+                badge.remove();
+                
+
+                updateHiddenKeywords();
+            });
+            
+            activeKeywordsList.appendChild(badge);
+            
+
+            updateHiddenKeywords();
+            
+            return true;
+        }
+
+
+        function filterPapersByField(field) {
+            if (!window.allPapers) return;
+            
+            let filteredPapers;
+            
+            if (!field) {
+                filteredPapers = window.allPapers;
+            } else {
+                filteredPapers = window.allPapers.filter(paper => paper.field === field);
+            }
+            
+            updatePapersTable(filteredPapers);
+            console.log(`Makaleler '${field}' alanına göre filtrelendi. ${filteredPapers.length} makale gösteriliyor.`);
+        }
+
+
+        document.querySelectorAll('.filter-field').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const field = this.getAttribute('data-field');
+                filterPapersByField(field);
+            });
+        });
+        
+
+        document.getElementById('saveField').addEventListener('click', async function() {
+            const trackingId = document.getElementById('detailTrackingId').textContent;
+            const field = document.getElementById('paperFieldSelect').value;
+            
+            if (!trackingId) {
+                console.error('Takip ID bulunamadı');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/papers/update-field/${trackingId}/?is_editor=true`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        field: field
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+
+                    showAlert('Akademik alan başarıyla güncellendi.', 'success', true);
+                } else {
+
+                    showAlert(`Hata: ${data.error || 'Alan güncellenirken bir hata oluştu.'}`, 'danger', true);
+                }
+            } catch (error) {
+                console.error('Error updating field:', error);
+                showAlert('Sunucu bağlantısında bir sorun oluştu.', 'danger', true);
+            }
+        });
+    </script>
+</body>
+</html>
